@@ -1,0 +1,135 @@
+From ce09a20458b99411b1492935495b1de3d865513e Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Sun, 9 Jul 2017 04:52:21 -0500
+Subject: [PATCH 2/3] Fix MSVC errors
+
+- Make {v}snprintf definition dependent on _MSC_VER
+- Remove need for unistd.h
+- MSVC (vc9) follows old C90 rules
+---
+ db/c.cc                 |  2 +-
+ db/c_test.c             | 20 +++++++++++++-------
+ issues/issue178_test.cc |  6 ++++++
+ port/port_win.h         |  7 ++++++-
+ 4 files changed, 26 insertions(+), 9 deletions(-)
+
+diff --git a/db/c.cc b/db/c.cc
+index 08ff0ad..b1bafa7 100644
+--- a/db/c.cc
++++ b/db/c.cc
+@@ -5,7 +5,7 @@
+ #include "leveldb/c.h"
+ 
+ #include <stdlib.h>
+-#include <unistd.h>
++//#include <unistd.h>
+ #include "leveldb/cache.h"
+ #include "leveldb/comparator.h"
+ #include "leveldb/db.h"
+diff --git a/db/c_test.c b/db/c_test.c
+index 7cd5ee0..16eda31 100644
+--- a/db/c_test.c
++++ b/db/c_test.c
+@@ -9,7 +9,13 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <sys/types.h>
+-#include <unistd.h>
++//#include <unistd.h>
++
++#ifdef _MSC_VER
++#  if (_MSC_VER < 1900) && !defined(snprintf)  /* snprintf not defined yet & not introduced */
++#    define snprintf _snprintf
++#  endif
++#endif
+ 
+ const char* phase = "";
+ static char dbname[200];
+@@ -140,8 +146,8 @@ static char* FilterCreate(
+     const char* const* key_array, const size_t* key_length_array,
+     int num_keys,
+     size_t* filter_length) {
+-  *filter_length = 4;
+   char* result = malloc(4);
++  *filter_length = 4;
+   memcpy(result, "fake", 4);
+   return result;
+ }
+@@ -169,9 +175,8 @@ int main(int argc, char** argv) {
+   CheckCondition(leveldb_minor_version() >= 1);
+ 
+   snprintf(dbname, sizeof(dbname),
+-           "%s/leveldb_c_test-%d",
+-           GetTempDir(),
+-           ((int) geteuid()));
++           "%s/leveldb_c_test",
++           GetTempDir());
+ 
+   StartPhase("create_objects");
+   cmp = leveldb_comparator_create(NULL, CmpDestroy, CmpCompare, CmpName);
+@@ -234,6 +239,7 @@ int main(int argc, char** argv) {
+ 
+   StartPhase("writebatch");
+   {
++    int pos = 0;
+     leveldb_writebatch_t* wb = leveldb_writebatch_create();
+     leveldb_writebatch_put(wb, "foo", 3, "a", 1);
+     leveldb_writebatch_clear(wb);
+@@ -245,7 +251,6 @@ int main(int argc, char** argv) {
+     CheckGet(db, roptions, "foo", "hello");
+     CheckGet(db, roptions, "bar", NULL);
+     CheckGet(db, roptions, "box", "c");
+-    int pos = 0;
+     leveldb_writebatch_iterate(wb, &pos, CheckPut, CheckDel);
+     CheckCondition(pos == 3);
+     leveldb_writebatch_destroy(wb);
+@@ -337,9 +342,10 @@ int main(int argc, char** argv) {
+ 
+   StartPhase("filter");
+   for (run = 0; run < 2; run++) {
++	leveldb_filterpolicy_t* policy;
+     // First run uses custom filter, second run uses bloom filter
+     CheckNoError(err);
+-    leveldb_filterpolicy_t* policy;
++
+     if (run == 0) {
+       policy = leveldb_filterpolicy_create(
+           NULL, FilterDestroy, FilterCreate, FilterKeyMatch, FilterName);
+diff --git a/issues/issue178_test.cc b/issues/issue178_test.cc
+index 1b1cf8b..a11fc16 100644
+--- a/issues/issue178_test.cc
++++ b/issues/issue178_test.cc
+@@ -11,6 +11,12 @@
+ #include "leveldb/write_batch.h"
+ #include "util/testharness.h"
+ 
++#ifdef _MSC_VER
++#  if (_MSC_VER < 1900) && !defined(snprintf)  /* snprintf not defined yet & not introduced */
++#    define snprintf _snprintf
++#  endif
++#endif
++
+ namespace {
+ 
+ const int kNumKeys = 1100000;
+diff --git a/port/port_win.h b/port/port_win.h
+index 5009004..c739d5f 100644
+--- a/port/port_win.h
++++ b/port/port_win.h
+@@ -32,7 +32,12 @@
+ #define STORAGE_LEVELDB_PORT_PORT_WIN_H_
+ 
+ #ifdef _MSC_VER
+-#define snprintf _snprintf
++#  if (_MSC_VER < 1900) && !defined(snprintf)  /* snprintf not defined yet & not introduced */
++#    define snprintf _snprintf
++#  endif
++#  if (_MSC_VER < 1500) && !defined(vsnprintf)  /* vsnprintf not defined yet & not introduced */
++#    define vsnprintf(b,c,f,a) _vsnprintf(b,c,f,a)
++#  endif
+ #define close _close
+ #define fread_unlocked _fread_nolock
+ #endif
+-- 
+2.7.0.windows.2
+
