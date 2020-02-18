@@ -1,20 +1,20 @@
-{% set version = "1.20" %}
+{% set version = "1.22" %}
 
 package:
   name: leveldb
-  version: "1.20" # without quote, yaml.load() drops 0
+  version: "{{ version }}" # without quote, yaml.load() drops 0
 
 source:
-  fn: v{{ version }}.tar.gz
-  url: https://github.com/google/leveldb/archive/v{{ version }}.tar.gz
-  sha256: f5abe8b5b209c2f36560b75f32ce61412f39a2922f7045ae764a2c23335b6664
+  fn: leveldb-{{ version }}.tar.gz
+  url: https://github.com/google/leveldb/archive/{{ version }}.tar.gz
+  sha256: 55423cac9e3306f4a9502c738a001e4a339d1a38ffbee7572d4a07d5d63949b2
   patches:
-    - 0001-Windows-port-from-bitcoin-core.patch  # [win]
-    - 0002-Fix-MSVC-errors.patch                 # [win]
-    - 0003-Relax-tests-on-Windows.patch          # [win]
+    # - 0001-Windows-port-from-bitcoin-core.patch
+    # - 0002-Fix-MSVC-errors.patch
+    # - 0003-Relax-tests-on-Windows.patch
 
 build:
-  number: 1
+  number: 0
   run_exports:
     # last two version had incompatibilities in minor version
     # https://abi-laboratory.pro/tracker/timeline/leveldb/
@@ -25,7 +25,7 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
   host:
-    - cmake >3.4    # [win]
+    - cmake >3.4
     - snappy
     - msinttypes    # [win and py<35]
   run:
@@ -33,11 +33,10 @@ requirements:
 
 test:
   commands:
-    - test -f ${PREFIX}/lib/libmemenv.a                 # [unix]
+    # - test -f ${PREFIX}/lib/libleveldb.a                 # [unix]
     - test -f ${PREFIX}/lib/libleveldb.dylib            # [osx]
     - test -f ${PREFIX}/lib/libleveldb.so               # [linux]
     - if not exist %LIBRARY_BIN%\\leveldb.dll exit 1    # [win]
-    - conda inspect linkages -p $PREFIX leveldb         # [unix]
 
 about:
   home: https://github.com/google/leveldb

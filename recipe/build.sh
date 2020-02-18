@@ -9,28 +9,18 @@ fi
 ### Build
 CXXFLAGS="${CXXFLAGS} "-I${PREFIX}/include \
 LDFLAGS="${LDFLAGS} -L${PREFIX}/lib ${RPATH}" \
+
+mkdir -p build
+cd build
+
+cmake  \
+   -DCMAKE_BUILD_TYPE=Release \
+   -DCMAKE_INSTALL_PREFIX=$PREFIX \
+   -DCMAKE_INSTALL_LIBDIR=$PREFIX/lib \
+   -DBUILD_SHARED_LIBS=ON \
+   -DCMAKE_AR=${AR} \
+   -DCMAKE_RANLIB=${RANLIB} \
+   ..
 make -j ${CPU_COUNT}
+make install
 
-### Check
-make check
-
-### Install manually ( no make install :) )
-# Ensure there is somewhere to put this stuff
-mkdir -p ${PREFIX}/include
-mkdir -p ${PREFIX}/lib
-
-# Move the libs, fixing any dylib's id name
-dylibs=$(find out-shared -type f -name "*.dylib.*")
-for dylib in $dylibs; do
-  install_name_tool -id $(basename $dylib) $dylib
-  mv $dylib ${PREFIX}/lib/
-done
-mv out-shared/libleveldb.* ${PREFIX}/lib/ || true
-# These libs are not really static; they link to the
-# snappy shared library, I think.
-mv out-static/libleveldb.* ${PREFIX}/lib/
-# .. only exists for static
-mv out-static/libmemenv.* ${PREFIX}/lib/
-
-# Move over the includes
-mv include/leveldb ${PREFIX}/include/
