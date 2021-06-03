@@ -8,7 +8,7 @@ source:
   fn: leveldb-{{ version }}.tar.gz
   url: https://github.com/google/leveldb/archive/{{ version }}.tar.gz
   sha256: 9a37f8a6174f09bd622bc723b55881dc541cd50747cbd08831c2a82d620f6d76
-  patches:
+  # patches:
     # - 0001-Windows-port-from-bitcoin-core.patch
     # - 0002-Fix-MSVC-errors.patch
     # - 0003-Relax-tests-on-Windows.patch
@@ -24,8 +24,9 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-  host:
     - cmake >3.4
+    - ninja
+  host:
     - snappy
     - msinttypes    # [win and py<35]
   run:
@@ -40,7 +41,9 @@ test:
 
 about:
   home: https://github.com/google/leveldb
-  license: BSD
+  license: BSD-3-Clause
+  license_file: LICENSE
+  license_family: BSD
   summary: A fast key-value storage library providing ordered mappings.
   description: |
     LevelDB supports arbitrary byte arrays as both keys and values, singular get,
