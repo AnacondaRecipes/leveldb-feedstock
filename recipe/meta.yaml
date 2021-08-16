@@ -8,13 +8,11 @@ source:
   fn: leveldb-{{ version }}.tar.gz
   url: https://github.com/google/leveldb/archive/{{ version }}.tar.gz
   sha256: 9a37f8a6174f09bd622bc723b55881dc541cd50747cbd08831c2a82d620f6d76
-  # patches:
-    # - 0001-Windows-port-from-bitcoin-core.patch
-    # - 0002-Fix-MSVC-errors.patch
-    # - 0003-Relax-tests-on-Windows.patch
+  patches:
+    - 0001-dont-disable-rtti.patch
 
 build:
-  number: 0
+  number: 1
   run_exports:
     # last two version had incompatibilities in minor version
     # https://abi-laboratory.pro/tracker/timeline/leveldb/

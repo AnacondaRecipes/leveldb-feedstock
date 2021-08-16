@@ -1,0 +1,11 @@
+diff -ruN leveldb-1.23/CMakeLists.txt leveldb-1.23-patch/CMakeLists.txt
+--- leveldb-1.23/CMakeLists.txt	2021-02-23 21:54:37.000000000 +0100
++++ leveldb-1.23-patch/CMakeLists.txt	2021-07-03 13:19:48.944215296 +0200
+@@ -73,7 +73,6 @@
+ 
+   # Disable RTTI.
+   string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+ endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+ 
+ # Test whether -Wthread-safety is available. See
