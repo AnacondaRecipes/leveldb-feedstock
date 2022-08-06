@@ -17,6 +17,8 @@ build:
     # last two version had incompatibilities in minor version
     # https://abi-laboratory.pro/tracker/timeline/leveldb/
     - {{ pin_subpackage('leveldb', max_pin='x.x') }}
+  ignore_run_exports: # [win]
+    - snappy # [win]
 
 requirements:
   build:
