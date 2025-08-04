@@ -12,7 +12,7 @@ source:
     - 0001-dont-disable-rtti.patch
 
 build:
-  number: 2
+  number: 3
   run_exports:
     # last two version had incompatibilities in minor version
     # https://abi-laboratory.pro/tracker/timeline/leveldb/

@@ -2,6 +2,7 @@ mkdir build
 cd build
 cmake ^
   -G "Ninja" ^
+  -DCMAKE_BUILD_TYPE=Release ^
   -DBUILD_SHARED_LIBS=ON ^
   -DLEVELDB_BUILD_TESTS=OFF ^
   -DLEVELDB_BUILD_BENCHMARKS=OFF ^
