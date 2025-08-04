@@ -29,7 +29,7 @@ requirements:
     - m2-patch  # [win]
     - patch     # [not win]
   host:
-    - snappy
+    - snappy {{ snappy }}
     - msinttypes    # [win and py<35]
   run:
     - snappy
