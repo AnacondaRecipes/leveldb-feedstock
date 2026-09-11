@@ -22,11 +22,11 @@ build:
 
 requirements:
   build:
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake >3.4
     - ninja
-    - patch     # [not win]
   host:
     - snappy {{ snappy }}
     - msinttypes    # [win and py<35]
